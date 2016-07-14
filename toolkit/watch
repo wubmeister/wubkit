@@ -1,0 +1,152 @@
+#!/usr/local/bin/node
+
+var fs = require('fs'),
+	child_process = require('child_process');
+
+function collectParams(tailKey, shortHands, defaults) {
+	var params = defaults || {},
+		key,
+		last = '';
+
+	tailKey = tailKey || 'filename';
+	shortHands = shortHands || {};
+
+	process.argv.forEach(function (arg, index) {
+		var m, value;
+
+		if (index > 1) {
+			if (arg[0] == '-') {
+				key = null;
+				if (arg.length > 1) {
+					if (arg[1] == '-') {
+						key = arg.substr(2);
+						last = 'ml';
+					} else {
+						key = arg.substr(1);
+						last = 'sl';
+					}
+
+					if (key) {
+						if (m = key.match(/^([^=]+)=([^$]+)$/)) {
+							key = m[1];
+							value = m[2];
+						}
+						if (last == 'sl' && (key in shortHands)) {
+							key = shortHands[key];
+						}
+						key = key.replace(/\-([a-z0-9])/g, function(m, p1) {
+							return p1.toUpperCase();
+						});
+						params[key] = value || true;
+						if (value) {
+							key = null;
+						}
+					}
+				}
+			} else {
+				if (last != 'sl' || !key) {
+					key = tailKey;
+				}
+				params[key] = arg;
+				key = null;
+				last = 'val';
+			}
+		}
+	});
+
+	return params;
+}
+
+(function () {
+
+	const PATHINFO_DIRNAME = 1,
+		PATHINFO_BASENAME = 2,
+		PATHINFO_EXTENSION = 4,
+		PATHINFO_FILENAME = 8;
+
+	var params = collectParams('path', { s: 'separate-files' }, { separateFiles: false });
+
+	// console.log(params);
+
+	function compileLess(src, dest) {
+		child_process.exec('lessc ' + src + ' ' + dest, function (err, stdout, stderr) {
+			if (stdout) console.log(stdout);
+			if (stderr) console.log(stderr);
+		});
+	}
+
+	function pathinfo(path, part) {
+		var dirParts = filename.split('/'),
+			basename = dirParts.pop(),
+			dirName = dirParts.join('/'),
+			basenameParts = basename.split('.'),
+			extension = basenameParts.pop(),
+			fileName = basenameParts.join('.');
+
+		if (part) {
+			switch (part) {
+				case PATHINFO_DIRNAME:
+					return dirName;
+				case PATHINFO_BASENAME:
+					return baseName;
+				case PATHINFO_EXTENSION:
+					return extension;
+				case PATHINFO_FILENAME:
+					return fileName;
+			}
+		}
+
+		return {
+			dirname: dirName,
+			basename: baseName,
+			extension: extension,
+			filename: fileName
+		};
+	}
+
+	function compileAll() {
+		if (params.separateFiles) {
+			fs.readdir('definitions', function (err, files) {
+				if (!err) {
+					files.forEach(function (file) {
+						var pi = pathinfo(file);
+						compileLess(file, process.cwd() + '/dist/separate/' + pi.filename + '.css');
+					});
+				}
+			})
+		} else {
+			compileLess('toolkit.less', 'dist/toolkit.css');
+		}
+	}
+
+	function onFileChange(e, filename) {
+		var pi = pathinfo(filename),
+			elementName,
+			definitionFile,
+			cssFile;
+
+		if (pi.extension == 'less') {
+			if (params.separateFiles) {
+				elementName = pi.filename.match(/^[^\.]+/)[0];
+
+				if (elementName == 'theme' || elementName == 'site') {
+					compileAll();
+				} else {
+					definitionFile = process.cwd() + '/definitions/' + elementName + '.less';
+					cssFile = process.cwd() + '/dist/separate/' + elementName + '.css';
+
+					fs.stat(definitionFile, function (err, stat) {
+						if (!err && stat.isFile()) {
+							compileLess(definitionFile, cssFile);
+						}
+					});
+				}
+			} else {
+				compileLess('toolkit.less', 'dist/toolkit.css');
+			}
+		}
+	}
+
+	fs.watch('.', { recursive: true }, onFileChange);
+
+})();

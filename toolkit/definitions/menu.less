@@ -1,0 +1,38 @@
+
+@element: "menu";
+
+@import (multiple) "../theme.config.less";
+
+.tk.menu {
+	position: relative;
+
+	&, .menu {
+		display: -webkit-inline-flex;
+		display: inline-flex;
+		-webkit-align-items: center;
+		align-items: center;
+	}
+
+	&.fluid {
+		display: -webkit-flex;
+		display: flex;
+	}
+
+	.item {
+		display: block;
+		padding: @itemPadding;
+	}
+
+	a.item {
+		color: @textColor;
+		text-decoration: none;
+	}
+
+	.right {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+}
+
+.loadOverrides();

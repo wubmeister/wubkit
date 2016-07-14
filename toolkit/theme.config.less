@@ -1,0 +1,18 @@
+
+@themeDir: "themes";
+
+@reset: "default";
+
+@menu: "default";
+
+@theme: @@element;
+
+@import "@{themeDir}/default/site.variables.less";
+@import (optional) "@{themeDir}/@{theme}/site.variables.less";
+
+@import "@{themeDir}/default/@{element}.variables.less";
+@import (optional) "@{themeDir}/@{theme}/@{element}.variables.less";
+
+.loadOverrides() {
+	@import (optional) "@{themeDir}/@{theme}/@{element}.overrides.less";
+}

@@ -1,0 +1,27 @@
+.tk.menu {
+  position: relative;
+}
+.tk.menu,
+.tk.menu .menu {
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.tk.menu.fluid {
+  display: -webkit-flex;
+  display: flex;
+}
+.tk.menu .item {
+  display: block;
+  padding: 1em 1.14285714em;
+}
+.tk.menu a.item {
+  color: #000;
+  text-decoration: none;
+}
+.tk.menu .right {
+  position: absolute;
+  top: 0;
+  right: 0;
+}

@@ -1,0 +1,44 @@
+
+@element: "topbar";
+
+@import (multiple) "../theme.config.less";
+
+.tk.topbar {
+
+	height: @height;
+
+	transition: height @metricsTransition;
+
+	&.absolute {
+		position: absolute;
+		top: 0; right: 0; left: 0;
+	}
+
+	&.fixed {
+		position: absolute;
+		top: 0; right: 0; left: 0;
+	}
+
+	&.scrollable{
+		.hide.scrolled {
+			opacity: 1;
+			transition: opacity @colorOpacityTransition;
+		}
+
+		&.scrolled {
+			height: @scrolledHeight;
+
+			.hide.scrolled {
+				opacity: 0;
+				z-index: -1;
+			}
+		}
+	}
+
+	> .container {
+		position: relative;
+	}
+
+}
+
+.loadOverrides();

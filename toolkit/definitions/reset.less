@@ -1,0 +1,24 @@
+
+@element: "reset";
+
+@import (multiple) "../theme.config.less";
+
+html {
+	font-size: 14px;
+}
+
+body {
+	margin: 0;
+}
+
+body, button, input, select, textarea {
+	font: 1em @bodyFont;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+*, :before, :after {
+	box-sizing: border-box;
+}
+
+.loadOverrides();
